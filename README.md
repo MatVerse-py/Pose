@@ -52,6 +52,17 @@ pip install -e .[dev]
 pytest
 ```
 
+## Release automation (v1.0.0+)
+
+- Crie uma tag `vX.Y.Z` e faça push; o workflow `Release PoSE-PQC` monta o
+  release automaticamente.
+- A action gera um batch de 100k evidences (`pose_pqc_batch_100k.json`) com o
+  claim "MatVerse v1.0.0 vivo" e inclui o hash do commit nas notas de release.
+- O preprint atualizado (arXiv v2) deve apontar para o release `v1.0.0`; ver
+  `docs/arxiv_v2.md`.
+- A Evidence Note #00000006 assinada está documentada em
+  `docs/evidence_note_00000006.md`.
+
 ## Caminho para um backend PQC
 
 A assinatura padrão usa HMAC-SHA-512 para manter o repositório

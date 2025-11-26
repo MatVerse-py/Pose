@@ -1,0 +1,59 @@
+name: Release PoSE-PQC
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install .
+
+      - name: Generate 100k Evidence Batch
+        run: |
+          python - <<'PY'
+          import json
+          import pathlib
+
+          from pose.pose_pqc import PoSEPQC
+
+          claim = "MatVerse v1.0.0 vivo"
+          batch = PoSEPQC().generate_batch(100000, claim, 0.99, "release")
+          path = pathlib.Path("pose_pqc_batch_100k.json")
+          path.write_text(
+              json.dumps([note.to_dict() for note in batch], ensure_ascii=False, indent=2)
+          )
+          print(f"Geradas {len(batch)} evidences para {path} - Ω validado")
+          PY
+
+      - name: Compose release notes
+        run: |
+          commit_hash=$(git rev-parse HEAD)
+          cat > release_notes.md <<EOF
+          # PoSE-PQC $(git describe --tags --always)
+
+          - Commit: ${commit_hash}
+          - Evidence batch: pose_pqc_batch_100k.json (100k notes)
+          - Claim: MatVerse v1.0.0 vivo
+          - Omega: batch gerado via PoSE-PQC com HMAC-SHA-512
+          EOF
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: pose_pqc_batch_100k.json
+          body_path: release_notes.md
+          generate_release_notes: true
