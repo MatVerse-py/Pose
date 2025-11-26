@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import math
 import secrets
 import time
 from dataclasses import dataclass, asdict
@@ -77,6 +78,9 @@ class PoSEPQC:
         Returns:
             Evidence if ``psi`` passes the threshold; otherwise ``None``.
         """
+
+        if not math.isfinite(psi):
+            return None
 
         if psi < self.psi_threshold:
             return None

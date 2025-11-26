@@ -1,5 +1,6 @@
 import hashlib
 import hmac
+import math
 
 from pose.pose_pqc import PoSEPQC
 
@@ -35,5 +36,12 @@ def test_generate_batch_respects_threshold_and_count():
     )
     assert len(evidences) == 5
     assert all(ev.claim == "batch" for ev in evidences)
+
+
+def test_generate_evidence_rejects_non_finite_psi():
+    pose = PoSEPQC()
+
+    assert pose.generate_evidence("claim", math.nan, "iti") is None
+    assert pose.generate_evidence("claim", math.inf, "iti") is None
 
 
